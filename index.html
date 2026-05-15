@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>家計簿</title>
+<title>記帳</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -447,6 +447,192 @@ td.mono{font-family:'DM Serif Display',serif;font-size:15px}
       <button class="btn btn-sm" style="background:var(--red-l);color:var(--red);border:none" onclick="clearAllData()">清除所有資料</button>
     </div>
   </div>
+
+  <div class="sec-label">每月固定費用參考表</div>
+  <div class="card">
+    <div class="card-body" style="padding-bottom:8px">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:16px">以下為每月固定支出項目與估算月攤金額，僅供參考。</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>類別</th>
+            <th>項目</th>
+            <th class="r">年費 / 總額</th>
+            <th class="r">月攤金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 分期 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">分期</td></tr>
+          <tr>
+            <td><span class="chip chip-分期">分期</span></td>
+            <td>王鈞課程 (Kai)</td>
+            <td class="r">$47,020</td>
+            <td class="r mono amount-pos">$3,922</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-分期">分期</span></td>
+            <td>iPad</td>
+            <td class="r">$30,700</td>
+            <td class="r mono amount-pos">$2,558</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-分期">分期</span></td>
+            <td>考試倉</td>
+            <td class="r">$15,902</td>
+            <td class="r mono amount-pos">$2,749</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-分期">分期</span></td>
+            <td>除濕機</td>
+            <td class="r">$6,290</td>
+            <td class="r mono amount-pos">$1,050</td>
+          </tr>
+          <!-- 保險 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">保險</td></tr>
+          <tr>
+            <td><span class="chip chip-保險1">保險1</span></td>
+            <td>南山 (Kai Mi)</td>
+            <td class="r">$69,644</td>
+            <td class="r mono amount-pos">$5,933</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險1">保險1</span></td>
+            <td>南山 (美金) — 分期存</td>
+            <td class="r">$32,862</td>
+            <td class="r mono amount-pos">$2,740</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險1">保險1</span></td>
+            <td>南山 (爸媽)</td>
+            <td class="r">$42,599</td>
+            <td class="r mono amount-pos">$3,550</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險2">保險2</span></td>
+            <td>泰安 — 汽車 (強制 + 乙式)</td>
+            <td class="r">$13,848</td>
+            <td class="r mono amount-pos">$1,154</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險2">保險2</span></td>
+            <td>南山 — 機車 Jet (強制 + 超額)</td>
+            <td class="r">$3,333</td>
+            <td class="r mono amount-pos">$278</td>
+          </tr>
+          <!-- 汽機車 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">汽機車</td></tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>牌照稅 — 汽車</td>
+            <td class="r">$7,116</td>
+            <td class="r mono amount-pos">$593</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>燃料稅 — 汽車</td>
+            <td class="r">$4,800</td>
+            <td class="r mono amount-pos">$400</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>燃料稅 — 機車 Jet</td>
+            <td class="r">$456</td>
+            <td class="r mono amount-pos">$38</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>定檢 — 汽車</td>
+            <td class="r">$900</td>
+            <td class="r mono amount-pos">$75</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>保養 — 汽車</td>
+            <td class="r">$12,000</td>
+            <td class="r mono amount-pos">$1,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>加油 — 汽車</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$1,500</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>加油 — 機車</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$3,600</td>
+          </tr>
+          <!-- 生活 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">生活</td></tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>餐飲工會 (兩人)</td>
+            <td class="r">$3,165 × 2</td>
+            <td class="r mono amount-pos">$6,206</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>遠傳 — Kai</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$549</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>遠傳 — Mi</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$499</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>國民年金 — Kai</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$2,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>雜費</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$2,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>伙食費 (1)</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$5,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>伙食費 (2)</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$5,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>家用</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$5,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>菸</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$1,000</td>
+          </tr>
+          <!-- 合計 -->
+          <tr style="background:var(--bg)">
+            <td colspan="2" style="font-weight:500;padding:14px 16px">每月固定費用合計</td>
+            <td class="r" style="padding:14px 16px">—</td>
+            <td class="r mono" style="padding:14px 16px;font-size:17px;color:var(--ink);font-family:'DM Serif Display',serif">$47,115</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
 </div>
 </div>
 
