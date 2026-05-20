@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家計簿</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --white: #ffffff;
+  --bg:    #f0ede8;
+  --bg2:   #e8e4de;
+  --card:  #faf9f7;
+  --line:  #ddd9d2;
+  --ink:   #1e1b18;
+  --ink2:  #5a554e;
+  --ink3:  #9e9890;
+  --ink4:  #c4beb5;
+  --teal:   #2d7d6e;
+  --teal-l: #e6f3f0;
+  --red:    #c0402e;
+  --red-l:  #faecea;
+  --amber:  #c07a1a;
+  --amber-l:#fdf2e0;
+  --blue:   #2d5a8e;
+  --blue-l: #e4edf8;
+  --r:  14px;
+  --rs: 9px;
+  --sh: 0 2px 8px rgba(30,27,24,.07);
+  --sh2:0 8px 32px rgba(30,27,24,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;height:60px;background:var(--white);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:0}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-right:auto;flex-shrink:0}
+.nav-brand span{color:var(--teal)}
+.nav-tabs{display:flex;background:var(--bg);border-radius:24px;padding:4px;gap:2px}
+.nav-tab{padding:7px 18px;border-radius:20px;border:none;background:transparent;font:400 13px/1 'DM Sans',sans-serif;color:var(--ink2);cursor:pointer;transition:all .18s;white-space:nowrap}
+.nav-tab:hover{color:var(--ink)}
+.nav-tab.active{background:var(--white);color:var(--ink);font-weight:500;box-shadow:0 1px 4px rgba(30,27,24,.1)}
+.nav-sync{margin-left:16px;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;border:1.5px solid var(--line);background:transparent;font:500 13px 'DM Sans',sans-serif;color:var(--ink2);cursor:pointer;transition:all .18s}
+.nav-sync:hover{border-color:var(--teal);color:var(--teal)}
+.nav-sync svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+.page-inner{max-width:960px;margin:0 auto;padding:32px 24px 64px}
+.page-header{margin-bottom:28px}
+.page-header h1{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-.4px;color:var(--ink);margin-bottom:4px}
+.page-header p{font-size:14px;color:var(--ink3)}
+.sec-label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink4);margin-bottom:12px}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.card-body{padding:24px}
+
+/* STAT ROW */
+.stat-row{display:grid;gap:12px;margin-bottom:24px}
+.stat-row.c2{grid-template-columns:repeat(2,1fr)}
+.stat-row.c3{grid-template-columns:repeat(3,1fr)}
+.stat-row.c4{grid-template-columns:repeat(4,1fr)}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
+.stat-label{font-size:12px;color:var(--ink3);margin-bottom:8px}
+.stat-value{font-family:'DM Serif Display',serif;font-size:30px;line-height:1;color:var(--ink);letter-spacing:-.5px}
+.stat-sub{font-size:12px;color:var(--ink4);margin-top:6px}
+.stat.teal{border-top:3px solid var(--teal)}
+.stat.teal .stat-value{color:var(--teal)}
+
+/* FORM */
+.form-grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:1.2fr 1fr 1.6fr 1.1fr 1fr}
+.field label{display:block;font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--ink3);margin-bottom:6px;text-transform:uppercase}
+input,select{width:100%;height:42px;padding:0 14px;border:1.5px solid var(--line);border-radius:var(--rs);font:400 14px/1 'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,125,110,.12)}
+input::placeholder{color:var(--ink4)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 20px;height:42px;border-radius:var(--rs);border:none;font:500 14px 'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--ink);color:var(--white)}
+.btn-primary:hover{background:var(--ink2)}
+.btn-teal{background:var(--teal);color:var(--white)}
+.btn-teal:hover{background:#236358}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:var(--ink2);color:var(--ink)}
+.btn-del{padding:0 12px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--ink4);font:400 13px 'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.btn-del:hover{background:var(--red-l);color:var(--red)}
+.btn-sm{height:34px;padding:0 14px;font-size:13px}
+.row-end{display:flex;justify-content:flex-end}
+.row-end.mt{margin-top:16px}
+
+/* PILLS */
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.pill{padding:6px 16px;border-radius:20px;border:1.5px solid var(--line);background:transparent;color:var(--ink2);font:400 13px 'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.pill:hover{border-color:var(--ink2)}
+.pill.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);padding:10px 16px;border-bottom:1.5px solid var(--line);text-align:left;white-space:nowrap}
+thead th.r{text-align:right}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--bg2);font-size:14px;color:var(--ink);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s}
+tbody tr:hover td{background:var(--bg)}
+td.r{text-align:right}
+td.mono{font-family:'DM Serif Display',serif;font-size:15px}
+.amount-pos{color:var(--teal)}
+.amount-neg{color:var(--red)}
+
+/* CHIP */
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:400;white-space:nowrap}
+.chip-A{background:#e4edf8;color:var(--blue)}
+.chip-B{background:#f2ecf8;color:#7a4a9a}
+.chip-薪水{background:var(--teal-l);color:var(--teal)}
+.chip-獎金{background:var(--amber-l);color:var(--amber)}
+.chip-其他{background:var(--bg2);color:var(--ink2)}
+.chip-分期{background:#e4edf8;color:#2d5a8e}
+.chip-保險1{background:var(--teal-l);color:var(--teal)}
+.chip-保險2{background:#e8f5ee;color:#2a7a4a}
+.chip-汽機車{background:var(--amber-l);color:var(--amber)}
+.chip-生活{background:#f2ecf8;color:#7a4a9a}
+.chip-現金{background:#f5f0e8;color:#7a6040}
+.chip-撥入{background:var(--teal-l);color:var(--teal)}
+.chip-支出{background:var(--red-l);color:var(--red)}
+
+/* BUDGET CARDS */
+.bud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.bud-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.bud-card-top{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between}
+.bud-card-name{font-size:13px;font-weight:500;color:var(--ink2);display:flex;align-items:center;gap:8px}
+.bud-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bud-card-rem{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px}
+.bud-card-body{padding:0 20px 18px}
+.bud-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink3);margin-bottom:5px}
+.bud-row strong{color:var(--ink);font-weight:400}
+.prog-bg{background:var(--bg2);border-radius:4px;height:5px;overflow:hidden;margin-top:12px}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s,background .3s}
+.prog-ok{background:var(--teal)}
+.prog-warn{background:var(--amber)}
+.prog-danger{background:var(--red)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--ink4);margin-top:5px}
+
+/* HIST STATS */
+.hist-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.hist-stat{background:var(--bg);border-radius:var(--rs);padding:14px 16px}
+.hist-stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px}
+.hist-stat-value{font-family:'DM Serif Display',serif;font-size:20px}
+
+/* ITEM CHIPS */
+.item-section{margin-bottom:16px}
+.item-section-title{font-size:12px;font-weight:500;color:var(--ink3);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+.item-chips{display:flex;flex-wrap:wrap;gap:8px}
+.item-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:13px;color:var(--ink2);background:var(--bg);border:1px solid var(--line)}
+.item-chip button{width:auto;height:auto;padding:0;background:none;border:none;color:var(--ink4);cursor:pointer;font-size:14px;line-height:1;transition:color .15s}
+.item-chip button:hover{color:var(--red)}
+
+.divider{border:none;border-top:1px solid var(--line);margin:24px 0}
+.empty{padding:40px;text-align:center;color:var(--ink4);font-size:14px}
+.mt8{margin-top:8px}
+.mt16{margin-top:16px}
+.flex{display:flex}
+.gap8{gap:8px}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:999;background:rgba(30,27,24,.4);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r);padding:32px;max-width:480px;width:100%;box-shadow:var(--sh2)}
+.modal h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:16px}
+.modal p{font-size:14px;color:var(--ink2);line-height:1.7}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+
+/* RESPONSIVE */
+@media(max-width:720px){
+  nav{padding:0 16px}
+  .nav-tab{padding:6px 12px;font-size:12px}
+  .nav-sync-txt{display:none}
+  .page-inner{padding:20px 16px 48px}
+  .page-header h1{font-size:22px}
+  .g5{grid-template-columns:1fr 1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .stat-row.c4{grid-template-columns:repeat(2,1fr)}
+  .bud-grid{grid-template-columns:repeat(2,1fr)}
+  .hist-stats{grid-template-columns:repeat(3,1fr)}
+  .stat-value{font-size:22px}
+}
+@media(max-width:480px){
+  .nav-tab{padding:6px 9px;font-size:11.5px}
+  .stat-row.c3{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .hist-stats{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">家<span>計</span>簿</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('income',this)">收入</button>
+    <button class="nav-tab" onclick="showPage('expense',this)">支出</button>
+    <button class="nav-tab" onclick="showPage('budget',this)">預算</button>
+    <button class="nav-tab" onclick="showPage('settings',this)">設定</button>
+  </div>
+  <button class="nav-sync btn" onclick="syncToSheets()">
+    <svg viewBox="0 0 16 16"><path d="M2 8a6 6 0 1 0 6-6"/><polyline points="5,2 2,2 2,5"/></svg>
+    <span class="nav-sync-txt">同步試算表</span>
+  </button>
+</nav>
+
+<!-- ══ INCOME ══ -->
+<div id="page-income" class="page active">
+<div class="page-inner">
+  <div class="page-header">
+    <h1>收入記錄</h1>
+    <p>記錄兩人每月薪資與收入明細</p>
+  </div>
+  <div class="stat-row c3" id="income-stats"></div>
+
+  <div class="sec-label">新增收入</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div class="form-grid g5">
+        <div class="field"><label>日期</label><input type="date" id="inc-date"></div>
+        <div class="field"><label>人員</label>
+          <select id="inc-person"><option value="A" id="opt-A">A</option><option value="B" id="opt-B">B</option></select>
+        </div>
+        <div class="field"><label>描述</label><input type="text" id="inc-desc" placeholder="如：六月薪資"></div>
+        <div class="field"><label>類別</label>
+          <select id="inc-cat"><option value="薪水">薪水</option><option value="獎金">獎金</option><option value="其他">其他</option></select>
+        </div>
+        <div class="field"><label>金額</label><input type="number" id="inc-amount" placeholder="0" min="0"></div>
+      </div>
+      <div class="row-end mt"><button class="btn btn-teal" onclick="addIncome()">＋ 新增收入</button></div>
+    </div>
+  </div>
+
+  <div class="sec-label">收入清單</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>日期</th><th>人員</th><th>描述</th><th>類別</th><th class="r">金額</th><th></th></tr></thead>
+      <tbody id="income-list"></tbody>
+    </table></div>
+  </div>
+
+  <div class="sec-label">年度每月統計</div>
+  <div class="card">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>月份</th><th class="r" id="th-A">人員 A</th><th class="r" id="th-B">人員 B</th><th class="r">合計</th></tr></thead>
+      <tbody id="income-monthly"></tbody>
+    </table></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ EXPENSE ══ -->
+<div id="page-expense" class="page">
+<div class="page-inner">
+  <div class="page-header">
+    <h1>支出記錄</h1>
+    <p>追蹤每筆家庭開銷，分類清晰掌控預算</p>
+  </div>
+  <div class="stat-row c4" id="expense-stats"></div>
+
+  <div class="sec-label">新增支出</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div class="form-grid g3">
+        <div class="field"><label>日期</label><input type="date" id="exp-date"></div>
+        <div class="field"><label>分類</label>
+          <select id="exp-cat" onchange="updateExpenseItems()">
+            <option value="分期">分期</option><option value="保險1">保險1</option>
+            <option value="保險2">保險2</option><option value="汽機車">汽機車</option>
+            <option value="生活">生活</option><option value="現金">現金</option>
+          </select>
+        </div>
+        <div class="field"><label>項目</label><select id="exp-item"></select></div>
+      </div>
+      <div class="form-grid g2 mt8">
+        <div class="field"><label>描述</label><input type="text" id="exp-desc" placeholder="補充說明（選填）"></div>
+        <div class="field"><label>金額</label><input type="number" id="exp-amount" placeholder="0" min="0"></div>
+      </div>
+      <div class="row-end mt"><button class="btn btn-teal" onclick="addExpense()">＋ 新增支出</button></div>
+    </div>
+  </div>
+
+  <div class="sec-label">支出清單</div>
+  <div class="card">
+    <div class="card-body" style="padding-bottom:0">
+      <div class="pills" id="expense-filter">
+        <button class="pill active" onclick="filterExpense('')" data-cat="">全部</button>
+        <button class="pill" onclick="filterExpense('分期')" data-cat="分期">分期</button>
+        <button class="pill" onclick="filterExpense('保險1')" data-cat="保險1">保險1</button>
+        <button class="pill" onclick="filterExpense('保險2')" data-cat="保險2">保險2</button>
+        <button class="pill" onclick="filterExpense('汽機車')" data-cat="汽機車">汽機車</button>
+        <button class="pill" onclick="filterExpense('生活')" data-cat="生活">生活</button>
+        <button class="pill" onclick="filterExpense('現金')" data-cat="現金">現金</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>日期</th><th>分類</th><th>項目</th><th>描述</th><th class="r">金額</th><th></th></tr></thead>
+      <tbody id="expense-list"></tbody>
+    </table></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ BUDGET ══ -->
+<div id="page-budget" class="page">
+<div class="page-inner">
+  <div class="page-header">
+    <h1>每月預算</h1>
+    <p>分配、追蹤每月各類別預算使用狀況</p>
+  </div>
+
+  <div class="sec-label">本月預算總覽</div>
+  <div class="bud-grid" id="budget-cards"></div>
+
+  <div class="sec-label">每月固定預算</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div class="form-grid g3">
+        <div class="field"><label>分期</label><input type="number" id="bfix-分期" placeholder="0" min="0"></div>
+        <div class="field"><label>保險1</label><input type="number" id="bfix-保險1" placeholder="0" min="0"></div>
+        <div class="field"><label>保險2</label><input type="number" id="bfix-保險2" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-grid g3 mt8">
+        <div class="field"><label>汽機車</label><input type="number" id="bfix-汽機車" placeholder="0" min="0"></div>
+        <div class="field"><label>生活</label><input type="number" id="bfix-生活" placeholder="0" min="0"></div>
+        <div class="field"><label>現金</label><input type="number" id="bfix-現金" placeholder="0" min="0"></div>
+      </div>
+      <div class="row-end mt"><button class="btn btn-ghost btn-sm" onclick="saveBudgetFixed()">儲存固定預算</button></div>
+    </div>
+  </div>
+
+  <div class="sec-label">薪水撥入</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div class="form-grid g2">
+        <div class="field"><label>月份</label><input type="month" id="alloc-month"></div>
+        <div></div>
+      </div>
+      <div class="form-grid g3 mt8">
+        <div class="field"><label>分期</label><input type="number" id="alloc-分期" placeholder="0" min="0"></div>
+        <div class="field"><label>保險1</label><input type="number" id="alloc-保險1" placeholder="0" min="0"></div>
+        <div class="field"><label>保險2</label><input type="number" id="alloc-保險2" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-grid g3 mt8">
+        <div class="field"><label>汽機車</label><input type="number" id="alloc-汽機車" placeholder="0" min="0"></div>
+        <div class="field"><label>生活</label><input type="number" id="alloc-生活" placeholder="0" min="0"></div>
+        <div class="field"><label>現金</label><input type="number" id="alloc-現金" placeholder="0" min="0"></div>
+      </div>
+      <div class="row-end mt"><button class="btn btn-teal" onclick="addAllocation()">確認撥入</button></div>
+    </div>
+  </div>
+
+  <div class="sec-label">預算歷程</div>
+  <div class="card">
+    <div class="card-body" style="padding-bottom:0">
+      <div class="pills" id="budget-hist-filter">
+        <button class="pill active" onclick="filterBudgetHist('')" data-cat="">全部</button>
+        <button class="pill" onclick="filterBudgetHist('分期')" data-cat="分期">分期</button>
+        <button class="pill" onclick="filterBudgetHist('保險1')" data-cat="保險1">保險1</button>
+        <button class="pill" onclick="filterBudgetHist('保險2')" data-cat="保險2">保險2</button>
+        <button class="pill" onclick="filterBudgetHist('汽機車')" data-cat="汽機車">汽機車</button>
+        <button class="pill" onclick="filterBudgetHist('生活')" data-cat="生活">生活</button>
+        <button class="pill" onclick="filterBudgetHist('現金')" data-cat="現金">現金</button>
+      </div>
+      <div class="hist-stats" id="budget-hist-stats"></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>日期</th><th>分類</th><th>類型</th><th>描述</th><th class="r">金額</th></tr></thead>
+      <tbody id="budget-hist-list"></tbody>
+    </table></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div id="page-settings" class="page">
+<div class="page-inner">
+  <div class="page-header">
+    <h1>設定</h1>
+    <p>管理人員名稱、Google Sheets 連接與項目清單</p>
+  </div>
+
+  <div class="sec-label">人員設定</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div class="form-grid g2">
+        <div class="field"><label>人員 A 名字</label><input type="text" id="set-nameA" placeholder="輸入名字"></div>
+        <div class="field"><label>人員 B 名字</label><input type="text" id="set-nameB" placeholder="輸入名字"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Google Sheets 同步</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div class="field">
+        <label>Web App URL</label>
+        <input type="text" id="set-webappurl" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <div class="row-end mt"><button class="btn btn-primary" onclick="saveSettings()">儲存設定</button></div>
+    </div>
+  </div>
+
+  <div class="sec-label">項目清單管理</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body">
+      <div id="items-by-cat"></div>
+      <hr class="divider">
+      <div class="form-grid g3">
+        <div class="field"><label>分類</label>
+          <select id="new-item-cat">
+            <option value="分期">分期</option><option value="保險1">保險1</option>
+            <option value="保險2">保險2</option><option value="汽機車">汽機車</option>
+            <option value="生活">生活</option><option value="現金">現金</option>
+          </select>
+        </div>
+        <div class="field"><label>項目名稱</label>
+          <input type="text" id="new-item-name" placeholder="新增項目名稱" onkeydown="if(event.key==='Enter')addItem()">
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end">
+          <button class="btn btn-ghost" onclick="addItem()">＋ 新增項目</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">資料管理</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body flex gap8">
+      <button class="btn btn-ghost btn-sm" onclick="exportData()">匯出 JSON 備份</button>
+      <button class="btn btn-sm" style="background:var(--red-l);color:var(--red);border:none" onclick="clearAllData()">清除所有資料</button>
+    </div>
+  </div>
+
+  <div class="sec-label">每月固定費用參考表</div>
+  <div class="card">
+    <div class="card-body" style="padding-bottom:8px">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:16px">以下為每月固定支出項目與估算月攤金額，僅供參考。</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>類別</th>
+            <th>項目</th>
+            <th class="r">年費 / 總額</th>
+            <th class="r">月攤金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 保險 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">保險</td></tr>
+          <tr>
+            <td><span class="chip chip-保險1">保險1</span></td>
+            <td>南山 (Kai Mi)</td>
+            <td class="r">$69,644</td>
+            <td class="r mono amount-pos">$5,933</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險1">保險1</span></td>
+            <td>南山 (美金) — 分期存</td>
+            <td class="r">$32,862</td>
+            <td class="r mono amount-pos">$2,740</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險1">保險1</span></td>
+            <td>南山 (爸媽)</td>
+            <td class="r">$42,599</td>
+            <td class="r mono amount-pos">$3,550</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險2">保險2</span></td>
+            <td>泰安 — 汽車 (強制 + 乙式)</td>
+            <td class="r">$13,848</td>
+            <td class="r mono amount-pos">$1,154</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-保險2">保險2</span></td>
+            <td>南山 — 機車 Jet (強制 + 超額)</td>
+            <td class="r">$3,333</td>
+            <td class="r mono amount-pos">$278</td>
+          </tr>
+          <!-- 汽機車 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">汽機車</td></tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>牌照稅 — 汽車</td>
+            <td class="r">$7,116</td>
+            <td class="r mono amount-pos">$593</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>燃料稅 — 汽車</td>
+            <td class="r">$4,800</td>
+            <td class="r mono amount-pos">$400</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>燃料稅 — 機車 Jet</td>
+            <td class="r">$456</td>
+            <td class="r mono amount-pos">$38</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>定檢 — 汽車</td>
+            <td class="r">$900</td>
+            <td class="r mono amount-pos">$75</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>保養 — 汽車</td>
+            <td class="r">$12,000</td>
+            <td class="r mono amount-pos">$1,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>加油 — 汽車</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$1,500</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-汽機車">汽機車</span></td>
+            <td>加油 — 機車</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$3,600</td>
+          </tr>
+          <!-- 生活 -->
+          <tr><td colspan="4" style="background:var(--bg);padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase">生活</td></tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>餐飲工會 (兩人)</td>
+            <td class="r">$3,165 × 2</td>
+            <td class="r mono amount-pos">$6,206</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>遠傳 — Kai</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$549</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>遠傳 — Mi</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$499</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>國民年金 — Kai</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$2,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>雜費</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$2,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>伙食費 (1)</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$5,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>伙食費 (2)</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$5,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>家用</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$5,000</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-生活">生活</span></td>
+            <td>菸</td>
+            <td class="r">—</td>
+            <td class="r mono amount-pos">$1,000</td>
+          </tr>
+          <!-- 合計 -->
+          <tr style="background:var(--bg)">
+            <td colspan="2" style="font-weight:500;padding:14px 16px">每月固定費用合計</td>
+            <td class="r" style="padding:14px 16px">—</td>
+            <td class="r mono" style="padding:14px 16px;font-size:17px;color:var(--ink);font-family:'DM Serif Display',serif">$47,115</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="sync-modal">
+  <div class="modal">
+    <h2>同步到 Google Sheets</h2>
+    <p id="sync-msg">正在推送資料，請稍候⋯</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('sync-modal')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const CATS  = ['分期','保險1','保險2','汽機車','生活','現金'];
+const CAT_C = {分期:'#2d5a8e',保險1:'#2d7d6e',保險2:'#2a7a4a',汽機車:'#c07a1a',生活:'#7a4a9a',現金:'#7a6040'};
+
+/* ═══════════════════════════════════════════
+   STATE  —  single source of truth
+   Settings (webappUrl, names) kept in
+   localStorage only (per-device preference).
+   All record data lives in Google Sheets.
+═══════════════════════════════════════════ */
+let S = {
+  incomes:[], expenses:[], allocations:[],
+  budgetFixed:{分期:0,保險1:0,保險2:0,汽機車:0,生活:0,現金:0},
+  items:{分期:[],保險1:[],保險2:[],汽機車:[],生活:[],現金:[]},
+  settings:{nameA:'A',nameB:'B',webappUrl:''}
+};
+
+/* settings persisted locally so URL survives refresh */
+function loadSettings(){
+  try{
+    const s=localStorage.getItem('kakeit_cfg');
+    if(s){ const c=JSON.parse(s); S.settings=Object.assign(S.settings,c); }
+  }catch(e){}
+}
+function saveSettings_local(){
+  localStorage.setItem('kakeit_cfg',JSON.stringify(S.settings));
+}
+
+const fmt   = n => Number(n||0).toLocaleString('zh-TW');
+const today = () => new Date().toISOString().slice(0,10);
+const nowM  = () => new Date().toISOString().slice(0,7);
+const monOf = d => (d||'').slice(0,7);
+const nameOf= p => p==='A'?(S.settings.nameA||'A'):(S.settings.nameB||'B');
+const API   = () => S.settings.webappUrl;
+
+/* ═══════════════════════════════════════════
+   LOADING OVERLAY
+═══════════════════════════════════════════ */
+function showLoading(msg='載入中…'){
+  let el=document.getElementById('loading-overlay');
+  if(!el){
+    el=document.createElement('div');
+    el.id='loading-overlay';
+    el.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(247,245,240,.88);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px';
+    el.innerHTML=`<div style="width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite"></div><div id="loading-msg" style="font-size:14px;color:var(--ink2)">${msg}</div>`;
+    if(!document.getElementById('spin-style')){
+      const st=document.createElement('style');
+      st.id='spin-style';
+      st.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(st);
+    }
+    document.body.appendChild(el);
+  } else {
+    document.getElementById('loading-msg').textContent=msg;
+    el.style.display='flex';
+  }
+}
+function hideLoading(){ const el=document.getElementById('loading-overlay'); if(el) el.style.display='none'; }
+
+/* ═══════════════════════════════════════════
+   API  —  fetch all data from Sheets (GET)
+═══════════════════════════════════════════ */
+async function fetchFromSheets(){
+  const url=API();
+  if(!url) return false;
+  try{
+    const res=await fetch(url+'?action=getAll', {method:'GET'});
+    const json=await res.json();
+    if(json.ok){
+      S.incomes     = json.incomes     || [];
+      S.expenses    = json.expenses    || [];
+      S.allocations = json.allocations || [];
+      S.budgetFixed = Object.assign({分期:0,保險1:0,保險2:0,汽機車:0,生活:0,現金:0}, json.budgetFixed||{});
+      S.items       = Object.assign({分期:[],保險1:[],保險2:[],汽機車:[],生活:[],現金:[]}, json.items||{});
+      CATS.forEach(c=>{ if(!S.items[c]) S.items[c]=[]; });
+      return true;
+    }
+    return false;
+  }catch(e){ return false; }
+}
+
+/* POST a single action to Sheets */
+async function postToSheets(payload){
+  const url=API();
+  if(!url){ alert('請先在設定頁填入 Web App URL'); return false; }
+  try{
+    const res=await fetch(url,{
+      method:'POST',
+      body:JSON.stringify(payload)
+    });
+    const txt=await res.text();
+    let json; try{ json=JSON.parse(txt); }catch(e){ json={ok:txt==='OK'||txt.startsWith('OK')}; }
+    return json.ok!==false;
+  }catch(e){ alert('網路錯誤：'+e.message); return false; }
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  ({income:renderIncome,expense:renderExpense,budget:renderBudget,settings:renderSettings})[id]?.();
+}
+
+/* ═══════════════════════════════════════════
+   INCOME
+═══════════════════════════════════════════ */
+async function addIncome(){
+  const d      = document.getElementById('inc-date').value||today();
+  const person = document.getElementById('inc-person').value;
+  const desc   = document.getElementById('inc-desc').value.trim();
+  const cat    = document.getElementById('inc-cat').value;
+  const amount = parseFloat(document.getElementById('inc-amount').value);
+  if(!amount||amount<=0){ alert('請輸入金額'); return; }
+  const row={id:Date.now(),date:d,person,desc,cat,amount};
+  showLoading('儲存中…');
+  const ok=await postToSheets({action:'addIncome',row});
+  if(ok){
+    S.incomes.unshift(row);
+    document.getElementById('inc-desc').value='';
+    document.getElementById('inc-amount').value='';
+    document.getElementById('inc-date').value=today();
+    renderIncome();
+  }
+  hideLoading();
+}
+
+async function deleteIncome(id){
+  if(!confirm('確定刪除此筆收入？'))return;
+  showLoading('刪除中…');
+  const ok=await postToSheets({action:'deleteIncome',id});
+  if(ok){ S.incomes=S.incomes.filter(r=>r.id!==id); renderIncome(); }
+  hideLoading();
+}
+
+function renderIncome(){
+  document.getElementById('opt-A').textContent=nameOf('A');
+  document.getElementById('opt-B').textContent=nameOf('B');
+  document.getElementById('th-A').textContent=nameOf('A');
+  document.getElementById('th-B').textContent=nameOf('B');
+  const nm=nowM();
+  const mon=S.incomes.filter(r=>monOf(r.date)===nm);
+  const tA=mon.filter(r=>r.person==='A').reduce((s,r)=>s+r.amount,0);
+  const tB=mon.filter(r=>r.person==='B').reduce((s,r)=>s+r.amount,0);
+  document.getElementById('income-stats').innerHTML=`
+    <div class="stat teal"><div class="stat-label">本月合計收入</div><div class="stat-value">$${fmt(tA+tB)}</div><div class="stat-sub">${mon.length} 筆記錄</div></div>
+    <div class="stat"><div class="stat-label">${nameOf('A')} 本月小計</div><div class="stat-value">$${fmt(tA)}</div><div class="stat-sub">${mon.filter(r=>r.person==='A').length} 筆</div></div>
+    <div class="stat"><div class="stat-label">${nameOf('B')} 本月小計</div><div class="stat-value">$${fmt(tB)}</div><div class="stat-sub">${mon.filter(r=>r.person==='B').length} 筆</div></div>`;
+  document.getElementById('income-list').innerHTML=S.incomes.length
+    ?S.incomes.map(r=>`<tr>
+        <td>${r.date}</td>
+        <td><span class="chip chip-${r.person}">${nameOf(r.person)}</span></td>
+        <td>${r.desc||'—'}</td>
+        <td><span class="chip chip-${r.cat}">${r.cat}</span></td>
+        <td class="r mono amount-pos">$${fmt(r.amount)}</td>
+        <td><button class="btn-del" onclick="deleteIncome(${r.id})">刪除</button></td>
+      </tr>`).join('')
+    :'<tr><td colspan="6" class="empty">尚無收入記錄</td></tr>';
+  const byM={};
+  S.incomes.forEach(r=>{const m=monOf(r.date);if(!byM[m])byM[m]={A:0,B:0};byM[m][r.person]+=r.amount;});
+  const mons=Object.keys(byM).sort().reverse();
+  document.getElementById('income-monthly').innerHTML=mons.length
+    ?mons.map(m=>`<tr><td>${m}</td><td class="r">$${fmt(byM[m].A)}</td><td class="r">$${fmt(byM[m].B)}</td><td class="r mono amount-pos">$${fmt(byM[m].A+byM[m].B)}</td></tr>`).join('')
+    :'<tr><td colspan="4" class="empty">尚無統計資料</td></tr>';
+}
+
+/* ═══════════════════════════════════════════
+   EXPENSE
+═══════════════════════════════════════════ */
+let expF='';
+function updateExpenseItems(){
+  const cat=document.getElementById('exp-cat').value;
+  const items=S.items[cat]||[];
+  document.getElementById('exp-item').innerHTML=items.length
+    ?items.map(i=>`<option>${i}</option>`).join('')
+    :'<option value="">（請先在設定新增項目）</option>';
+}
+async function addExpense(){
+  const d      = document.getElementById('exp-date').value||today();
+  const cat    = document.getElementById('exp-cat').value;
+  const item   = document.getElementById('exp-item').value;
+  const desc   = document.getElementById('exp-desc').value.trim();
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  if(!amount||amount<=0){ alert('請輸入金額'); return; }
+  const row={id:Date.now(),date:d,cat,item,desc,amount};
+  showLoading('儲存中…');
+  const ok=await postToSheets({action:'addExpense',row});
+  if(ok){
+    S.expenses.unshift(row);
+    document.getElementById('exp-desc').value='';
+    document.getElementById('exp-amount').value='';
+    document.getElementById('exp-date').value=today();
+    renderExpense();
+  }
+  hideLoading();
+}
+async function deleteExpense(id){
+  if(!confirm('確定刪除此筆支出？'))return;
+  showLoading('刪除中…');
+  const ok=await postToSheets({action:'deleteExpense',id});
+  if(ok){ S.expenses=S.expenses.filter(r=>r.id!==id); renderExpense(); }
+  hideLoading();
+}
+function filterExpense(cat){
+  expF=cat;
+  document.querySelectorAll('#expense-filter .pill').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+  renderExpenseList();
+}
+function renderExpense(){
+  const nm=nowM();
+  const mon=S.expenses.filter(r=>monOf(r.date)===nm);
+  document.getElementById('expense-stats').innerHTML=CATS.map(c=>{
+    const s=mon.filter(r=>r.cat===c).reduce((a,r)=>a+r.amount,0);
+    return`<div class="stat"><div class="stat-label" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${CAT_C[c]};flex-shrink:0;display:inline-block"></span>${c}</div><div class="stat-value" style="font-size:24px">$${fmt(s)}</div><div class="stat-sub">本月支出</div></div>`;
+  }).join('');
+  renderExpenseList();
+}
+function renderExpenseList(){
+  const data=expF?S.expenses.filter(r=>r.cat===expF):S.expenses;
+  document.getElementById('expense-list').innerHTML=data.length
+    ?data.map(r=>`<tr><td>${r.date}</td><td><span class="chip chip-${r.cat}">${r.cat}</span></td><td>${r.item||'—'}</td><td>${r.desc||'—'}</td><td class="r mono amount-neg">$${fmt(r.amount)}</td><td><button class="btn-del" onclick="deleteExpense(${r.id})">刪除</button></td></tr>`).join('')
+    :'<tr><td colspan="6" class="empty">尚無支出記錄</td></tr>';
+}
+
+/* ═══════════════════════════════════════════
+   BUDGET
+═══════════════════════════════════════════ */
+let budHF='';
+async function saveBudgetFixed(){
+  CATS.forEach(c=>{S.budgetFixed[c]=parseFloat(document.getElementById('bfix-'+c).value)||0;});
+  showLoading('儲存中…');
+  const ok=await postToSheets({action:'saveBudgetFixed',budgetFixed:S.budgetFixed});
+  hideLoading();
+  if(ok){ renderBudget(); alert('預算已儲存'); }
+}
+async function addAllocation(){
+  const month=document.getElementById('alloc-month').value||nowM();
+  const allocs={};let any=false;
+  CATS.forEach(c=>{const v=parseFloat(document.getElementById('alloc-'+c).value)||0;allocs[c]=v;if(v>0)any=true;});
+  if(!any){ alert('請輸入至少一項撥入金額'); return; }
+  const row={id:Date.now(),date:today(),month,allocs};
+  showLoading('儲存中…');
+  const ok=await postToSheets({action:'addAllocation',row});
+  if(ok){
+    S.allocations.push(row);
+    CATS.forEach(c=>document.getElementById('alloc-'+c).value='');
+    renderBudget();
+  }
+  hideLoading();
+}
+function renderBudget(){
+  CATS.forEach(c=>{const el=document.getElementById('bfix-'+c);if(el)el.value=S.budgetFixed[c]||'';});
+  document.getElementById('alloc-month').value=nowM();
+  const nm=nowM();
+  const allocs=S.allocations.filter(a=>a.month===nm);
+  const tA={},sp={};
+  CATS.forEach(c=>{
+    tA[c]=allocs.reduce((s,a)=>s+(a.allocs[c]||0),0);
+    sp[c]=S.expenses.filter(r=>r.cat===c&&monOf(r.date)===nm).reduce((s,r)=>s+r.amount,0);
+  });
+  document.getElementById('budget-cards').innerHTML=CATS.map(c=>{
+    const bal=tA[c]||0,s=sp[c]||0,rem=bal-s;
+    const pct=bal>0?Math.min((s/bal)*100,100):0;
+    const cls=pct>=100?'prog-danger':pct>=80?'prog-warn':'prog-ok';
+    const rc=rem<0?'color:var(--red)':pct>=80?'color:var(--amber)':'color:var(--teal)';
+    return`<div class="bud-card">
+      <div class="bud-card-top">
+        <div class="bud-card-name"><span class="bud-dot" style="background:${CAT_C[c]}"></span>${c}</div>
+        <div class="bud-card-rem" style="${rc}">$${fmt(rem)}</div>
+      </div>
+      <div class="bud-card-body">
+        <div class="bud-row"><span>每月分配預算</span><strong>$${fmt(S.budgetFixed[c]||0)}</strong></div>
+        <div class="bud-row"><span>撥入預算總額</span><strong>$${fmt(bal)}</strong></div>
+        <div class="bud-row"><span>本月已支出</span><strong style="color:var(--red)">$${fmt(s)}</strong></div>
+        <div class="prog-bg"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div>
+        <div class="prog-label"><span>0%</span><span>${Math.round(pct)}% 已使用</span><span>100%</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  renderBudgetHist();
+}
+function filterBudgetHist(cat){
+  budHF=cat;
+  document.querySelectorAll('#budget-hist-filter .pill').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+  renderBudgetHist();
+}
+function renderBudgetHist(){
+  let rows=[];
+  S.allocations.forEach(a=>CATS.forEach(c=>{if(a.allocs[c]>0)rows.push({date:a.date,month:a.month,cat:c,type:'撥入',desc:'薪水撥入',amount:a.allocs[c]});}));
+  S.expenses.forEach(r=>rows.push({date:r.date,month:monOf(r.date),cat:r.cat,type:'支出',desc:(r.item||'')+(r.desc?' '+r.desc:''),amount:r.amount}));
+  if(budHF)rows=rows.filter(r=>r.cat===budHF);
+  rows.sort((a,b)=>b.date.localeCompare(a.date));
+  const tIn=rows.filter(r=>r.type==='撥入').reduce((s,r)=>s+r.amount,0);
+  const tOut=rows.filter(r=>r.type==='支出').reduce((s,r)=>s+r.amount,0);
+  const rem=tIn-tOut;
+  document.getElementById('budget-hist-stats').innerHTML=`
+    <div class="hist-stat"><div class="hist-stat-label">撥入總額</div><div class="hist-stat-value amount-pos">$${fmt(tIn)}</div></div>
+    <div class="hist-stat"><div class="hist-stat-label">支出總額</div><div class="hist-stat-value amount-neg">$${fmt(tOut)}</div></div>
+    <div class="hist-stat"><div class="hist-stat-label">剩餘</div><div class="hist-stat-value ${rem<0?'amount-neg':'amount-pos'}">$${fmt(rem)}</div></div>`;
+  document.getElementById('budget-hist-list').innerHTML=rows.length
+    ?rows.map(r=>`<tr><td>${r.date||r.month}</td><td><span class="chip chip-${r.cat}">${r.cat}</span></td><td><span class="chip chip-${r.type}">${r.type}</span></td><td>${r.desc||'—'}</td><td class="r mono ${r.type==='撥入'?'amount-pos':'amount-neg'}">$${fmt(r.amount)}</td></tr>`).join('')
+    :'<tr><td colspan="5" class="empty">尚無歷程記錄</td></tr>';
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════ */
+function renderSettings(){
+  document.getElementById('set-nameA').value=S.settings.nameA||'';
+  document.getElementById('set-nameB').value=S.settings.nameB||'';
+  document.getElementById('set-webappurl').value=S.settings.webappUrl||'';
+  renderItemsList();
+}
+function saveSettings(){
+  S.settings.nameA    =document.getElementById('set-nameA').value.trim()||'A';
+  S.settings.nameB    =document.getElementById('set-nameB').value.trim()||'B';
+  S.settings.webappUrl=document.getElementById('set-webappurl').value.trim();
+  saveSettings_local();
+  alert('設定已儲存');
+}
+function renderItemsList(){
+  document.getElementById('items-by-cat').innerHTML=CATS.map(c=>`
+    <div class="item-section">
+      <div class="item-section-title">${c}</div>
+      <div class="item-chips">
+        ${(S.items[c]||[]).map((it,i)=>`<div class="item-chip"><span>${it}</span><button onclick="deleteItem('${c}',${i})" title="刪除">✕</button></div>`).join('')}
+        ${!(S.items[c]||[]).length?`<span style="font-size:12px;color:var(--ink4)">尚無項目</span>`:''}
+      </div>
+    </div>`).join('');
+}
+async function addItem(){
+  const cat =document.getElementById('new-item-cat').value;
+  const name=document.getElementById('new-item-name').value.trim();
+  if(!name){ alert('請輸入項目名稱'); return; }
+  if(!S.items[cat]) S.items[cat]=[];
+  S.items[cat].push(name);
+  showLoading('儲存中…');
+  const ok=await postToSheets({action:'saveItems',items:S.items});
+  hideLoading();
+  if(ok){
+    document.getElementById('new-item-name').value='';
+    renderItemsList(); updateExpenseItems();
+  } else {
+    S.items[cat].pop(); // rollback
+  }
+}
+async function deleteItem(cat,idx){
+  S.items[cat].splice(idx,1);
+  showLoading('儲存中…');
+  const ok=await postToSheets({action:'saveItems',items:S.items});
+  hideLoading();
+  renderItemsList(); updateExpenseItems();
+}
+function exportData(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));
+  a.download='家計簿備份_'+today()+'.json';a.click();
+}
+async function clearAllData(){
+  if(!confirm('確定清除所有資料？Sheets 上的資料也會清空，無法還原。'))return;
+  showLoading('清除中…');
+  const ok=await postToSheets({action:'clearAll'});
+  if(ok){
+    S.incomes=[];S.expenses=[];S.allocations=[];
+    S.budgetFixed={分期:0,保險1:0,保險2:0,汽機車:0,生活:0,現金:0};
+    alert('已清除所有資料');
+    renderIncome();
+  }
+  hideLoading();
+}
+
+/* ═══════════════════════════════════════════
+   MANUAL RELOAD button (nav sync icon)
+═══════════════════════════════════════════ */
+async function syncToSheets(){
+  const url=API();
+  if(!url){ alert('請先在設定頁填入 Web App URL'); return; }
+  showLoading('從試算表載入資料…');
+  const ok=await fetchFromSheets();
+  hideLoading();
+  if(ok){
+    renderIncome();
+    alert('✓ 資料已重新載入');
+  } else {
+    alert('✗ 載入失敗，請確認 Web App URL 是否正確');
+  }
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+/* ═══════════════════════════════════════════
+   INIT  —  load settings → fetch Sheets
+═══════════════════════════════════════════ */
+async function init(){
+  loadSettings();
+  // fill URL field immediately
+  document.getElementById('set-webappurl').value=S.settings.webappUrl||'';
+  document.getElementById('set-nameA').value=S.settings.nameA||'';
+  document.getElementById('set-nameB').value=S.settings.nameB||'';
+  document.getElementById('inc-date').value=today();
+  document.getElementById('exp-date').value=today();
+  document.getElementById('alloc-month').value=nowM();
+
+  if(S.settings.webappUrl){
+    showLoading('載入資料中…');
+    const ok=await fetchFromSheets();
+    hideLoading();
+    if(!ok){
+      alert('無法從 Google Sheets 載入資料，請確認 Web App URL 設定是否正確。');
+    }
+  } else {
+    // No URL yet — show settings page
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-settings').classList.add('active');
+    document.querySelectorAll('.nav-tab')[3].classList.add('active');
+    alert('請先填入 Web App URL 再開始使用');
+  }
+  updateExpenseItems();
+  renderIncome();
+}
+
+init();
+</script>
+
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║   GOOGLE APPS SCRIPT  —  完整版（支援 GET 讀取 + POST 寫入）    ║
+╠══════════════════════════════════════════════════════════════════╣
+║  1. Google Sheets → 擴充功能 → Apps Script                       ║
+║  2. 貼上下方程式碼，將 SPREADSHEET_ID 換成你的試算表 ID          ║
+║  3. 部署 → 新增部署 → 網頁應用程式                               ║
+║     執行身份：我　存取權限：任何人                                ║
+║  4. 複製 URL → 貼到網頁設定頁「Web App URL」→ 儲存               ║
+║  !! 每次修改程式碼後要「新增版本」重新部署，URL 不會變 !!         ║
+╚══════════════════════════════════════════════════════════════════╝
+
+const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+
+// ── 工作表名稱 ──
+const SH_INCOME  = '收入';
+const SH_EXPENSE = '支出';
+const SH_ALLOC   = '撥入';
+const SH_CONFIG  = '設定';   // 存 budgetFixed + items
+
+// ── GET：回傳所有資料 ──
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const result = {
+      ok: true,
+      incomes:     readSheet(ss, SH_INCOME,  ['id','date','person','desc','cat','amount']),
+      expenses:    readSheet(ss, SH_EXPENSE, ['id','date','cat','item','desc','amount']),
+      allocations: readAllocations(ss),
+      budgetFixed: readConfig(ss, 'budgetFixed'),
+      items:       readConfig(ss, 'items')
+    };
+    return jsonResponse(result);
+  } catch(err) {
+    return jsonResponse({ok:false, error:err.message});
+  }
+}
+
+// ── POST：處理各種寫入動作 ──
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+    switch(data.action) {
+
+      case 'addIncome':
+        appendRow(ss, SH_INCOME, ['id','date','person','desc','cat','amount'], data.row);
+        break;
+
+      case 'deleteIncome':
+        deleteRowById(ss, SH_INCOME, data.id);
+        break;
+
+      case 'addExpense':
+        appendRow(ss, SH_EXPENSE, ['id','date','cat','item','desc','amount'], data.row);
+        break;
+
+      case 'deleteExpense':
+        deleteRowById(ss, SH_EXPENSE, data.id);
+        break;
+
+      case 'addAllocation':
+        appendAllocation(ss, data.row);
+        break;
+
+      case 'saveBudgetFixed':
+        saveConfig(ss, 'budgetFixed', data.budgetFixed);
+        break;
+
+      case 'saveItems':
+        saveConfig(ss, 'items', data.items);
+        break;
+
+      case 'clearAll':
+        clearSheet(ss, SH_INCOME);
+        clearSheet(ss, SH_EXPENSE);
+        clearSheet(ss, SH_ALLOC);
+        saveConfig(ss, 'budgetFixed', {分期:0,保險1:0,保險2:0,汽機車:0,生活:0,現金:0});
+        break;
+
+      default:
+        return jsonResponse({ok:false, error:'unknown action'});
+    }
+    return jsonResponse({ok:true});
+  } catch(err) {
+    return jsonResponse({ok:false, error:err.message});
+  }
+}
+
+// ── 工具函式 ──
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getOrCreateSheet(ss, name) {
+  return ss.getSheetByName(name) || ss.insertSheet(name);
+}
+
+function clearSheet(ss, name) {
+  const sh = getOrCreateSheet(ss, name);
+  sh.clearContents();
+}
+
+// 讀取一張工作表，第一列為 header，回傳 object array
+function readSheet(ss, name, fields) {
+  const sh = getOrCreateSheet(ss, name);
+  const data = sh.getDataRange().getValues();
+  if(data.length <= 1) return [];  // only header or empty
+  const headers = data[0];
+  return data.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = row[i]; });
+    // amount to number
+    if(obj.amount !== undefined) obj.amount = Number(obj.amount)||0;
+    return obj;
+  });
+}
+
+// 追加一行（如果沒有 header 先加）
+function appendRow(ss, name, fields, row) {
+  const sh = getOrCreateSheet(ss, name);
+  if(sh.getLastRow() === 0) sh.appendRow(fields);
+  sh.appendRow(fields.map(f => row[f] !== undefined ? row[f] : ''));
+}
+
+// 刪除 id 符合的列（id 在第一欄）
+function deleteRowById(ss, name, id) {
+  const sh   = getOrCreateSheet(ss, name);
+  const data = sh.getDataRange().getValues();
+  for(let i = data.length - 1; i >= 1; i--) {
+    if(String(data[i][0]) === String(id)) {
+      sh.deleteRow(i + 1);
+      break;
+    }
+  }
+}
+
+// 撥入資料格式：每列 id, date, month, cat, amount
+function readAllocations(ss) {
+  const sh   = getOrCreateSheet(ss, SH_ALLOC);
+  const data = sh.getDataRange().getValues();
+  if(data.length <= 1) return [];
+  // group by id+date+month → rebuild allocs object
+  const map = {};
+  data.slice(1).forEach(row => {
+    const [id, date, month, cat, amount] = row;
+    const key = String(id);
+    if(!map[key]) map[key] = {id:Number(id), date:String(date), month:String(month), allocs:{}};
+    map[key].allocs[cat] = Number(amount)||0;
+  });
+  return Object.values(map);
+}
+
+function appendAllocation(ss, row) {
+  const sh = getOrCreateSheet(ss, SH_ALLOC);
+  if(sh.getLastRow() === 0) sh.appendRow(['id','date','month','cat','amount']);
+  const cats = Object.keys(row.allocs);
+  cats.forEach(cat => {
+    if(row.allocs[cat] > 0)
+      sh.appendRow([row.id, row.date, row.month, cat, row.allocs[cat]]);
+  });
+}
+
+// 設定存在「設定」工作表，A欄=key，B欄=JSON value
+function readConfig(ss, key) {
+  const sh   = getOrCreateSheet(ss, SH_CONFIG);
+  const data = sh.getDataRange().getValues();
+  for(const row of data) {
+    if(String(row[0]) === key) {
+      try{ return JSON.parse(row[1]); }catch(e){ return null; }
+    }
+  }
+  return null;
+}
+
+function saveConfig(ss, key, value) {
+  const sh   = getOrCreateSheet(ss, SH_CONFIG);
+  const data = sh.getDataRange().getValues();
+  for(let i = 0; i < data.length; i++) {
+    if(String(data[i][0]) === key) {
+      sh.getRange(i+1, 2).setValue(JSON.stringify(value));
+      return;
+    }
+  }
+  sh.appendRow([key, JSON.stringify(value)]);
+}
+-->
+</body>
+</html>
